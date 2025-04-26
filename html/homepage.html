@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Unified Interface for LLMs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://unpkg.com/framer-motion@10/dist/motion.dom.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
+    <script type="text/javascript" src="https://assets.pyecharts.org/assets/maps/world.js"></script>
+
+    <script>
+        // Translation dictionary for all supported languages
+        const translations = {
+            'en': { // English
+                // Hero section
+                'title': 'The <span class="text-gradient-accent">Unified Interface</span> for LLMs',
+                'subtitle': 'Better price, no subscription. Access leading models seamlessly.',
+                'localization': 'Supports localization service in multiple countries',
+                // Countries and languages (Keys remain English for mapping)
+                'India': 'India', 'Japan': 'Japan', 'Brazil': 'Brazil',
+                'English': 'English', 'Chinese': 'Chinese', 'Portuguese': 'Portuguese', 'Japanese': 'Japanese', 'Hindi': 'Hindi',
+                // Quick start section
+                'get_started': 'Get started quickly',
+                'sign_up': 'Sign up with Google',
+                'one_click': 'One click to create an account and get started.',
+                'purchase_credits': 'Purchase Credits',
+                'use_credits': 'Use credits flexibly across any model or provider.',
+                'purchase': 'Purchase',
+                'get_api_key': 'Get Your API Key',
+                'generate_key': 'Generate an API key and start making requests instantly.',
+                // Features section
+                'powerful_features': 'Powerful Features',
+                'one_api': 'One API for Any Model',
+                'one_api_desc': 'Access all major models through a single, unified interface. Fully OpenAI compatible.',
+                'browse_models': 'Browse Models',
+                'high_availability': 'High Availability',
+                'high_availability_desc': 'Ensure reliable access with our distributed infrastructure. Auto-routes around provider outages.',
+                'learn_more': 'Learn More',
+                'optimized_performance': 'Optimized Performance',
+                'optimized_performance_desc': 'Keep costs low without sacrificing speed. Edge routing adds minimal latency (~30ms).',
+                'view_pricing': 'View Pricing',
+                'data_policies': 'Data Policies',
+                'data_policies_desc': 'Protect your organization with fine-grained controls. Ensure prompts only reach trusted models.',
+                'view_docs': 'View Docs'
+            },
+            'zh': { // Chinese
+                // Hero section
+                'title': '<span class="text-gradient-accent">统一接口</span>大语言模型',
+                'subtitle': '更优价格，无需订阅。无缝访问领先模型。',
+                'localization': '支持多国本地化服务',
+                 // Countries and languages
+                'India': '印度', 'Japan': '日本', 'Brazil': '巴西',
+                'English': '英语', 'Chinese': '中文', 'Portuguese': '葡萄牙语', 'Japanese': '日语', 'Hindi': '印地语',
+                // Quick start section
+                'get_started': '快速开始',
+                'sign_up': '使用谷歌注册',
+                'one_click': '一键创建账户并开始使用。',
+                'purchase_credits': '购买点数',
+                'use_credits': '灵活使用点数适用于任何模型或提供商。',
+                'purchase': '购买',
+                'get_api_key': '获取API密钥',
+                'generate_key': '生成API密钥并立即开始发送请求。',
+                // Features section
+                'powerful_features': '强大功能',
+                'one_api': '一个API适用于任何模型',
+                'one_api_desc': '通过单一统一接口访问所有主要模型。完全兼容OpenAI。',
+                'browse_models': '浏览模型',
+                'high_availability': '高可用性',
+                'high_availability_desc': '通过分布式基础设施确保可靠访问。自动绕过提供商停机。',
+                'learn_more': '了解更多',
+                'optimized_performance': '优化性能',
+                'optimized_performance_desc': '在不牺牲速度的情况下保持低成本。边缘路由仅增加最小延迟（~30ms）。',
+                'view_pricing': '查看价格',
+                'data_policies': '数据策略',
+                'data_policies_desc': '使用精细控制保护您的组织。确保提示只发送到可信模型。',
+                'view_docs': '查看文档'
+            },
+            'ja': { // Japanese
+                // Hero section
+                'title': 'LLMのための<span class="text-gradient-accent">統一インターフェース</span>',
+                'subtitle': 'より良い価格、サブスクリプションなし。主要モデルにシームレスにアクセス。',
+                'localization': '複数の国でローカライゼーションサービスをサポート',
+                // Countries and languages
+                'India': 'インド', 'Japan': '日本', 'Brazil': 'ブラジル',
+                'English': '英語', 'Chinese': '中国語', 'Portuguese': 'ポルトガル語', 'Japanese': '日本語', 'Hindi': 'ヒンディー語',
+                // Quick start section
+                'get_started': 'すぐに始める',
+                'sign_up': 'Googleでサインアップ',
+                'one_click': 'ワンクリックでアカウントを作成して開始。',
+                'purchase_credits': 'クレジットを購入',
+                'use_credits': 'あらゆるモデルやプロバイダーで柔軟にクレジットを使用。',
+                'purchase': '購入',
+                'get_api_key': 'APIキーを取得',
+                'generate_key': 'APIキーを生成して即座にリクエストを開始。',
+                // Features section
+                'powerful_features': '強力な機能',
+                'one_api': 'あらゆるモデルに対応する単一API',
+                'one_api_desc': '単一の統一インターフェースを通じてすべての主要モデルにアクセス。OpenAIと完全互換。',
+                'browse_models': 'モデルを閲覧',
+                'high_availability': '高可用性',
+                'high_availability_desc': '分散インフラストラクチャで信頼性の高いアクセスを確保。プロバイダーの障害を自動回避。',
+                'learn_more': '詳細を見る',
+                'optimized_performance': '最適化されたパフォーマンス',
+                'optimized_performance_desc': '速度を犠牲にすることなくコストを低く抑える。エッジルーティングは最小限のレイテンシ(~30ms)を追加。',
+                'view_pricing': '価格を見る',
+                'data_policies': 'データポリシー',
+                'data_policies_desc': '細かい制御で組織を保護。プロンプトが信頼できるモデルにのみ到達することを確保。',
+                'view_docs': 'ドキュメントを見る'
+            },
+            'hi': { // Hindi
+                // Hero section
+                'title': 'LLMs के लिए <span class="text-gradient-accent">एकीकृत इंटरफेस</span>',
+                'subtitle': 'बेहतर कीमत, कोई सदस्यता नहीं। प्रमुख मॉडलों तक निर्बाध पहुंच।',
+                'localization': 'कई देशों में स्थानीयकरण सेवा का समर्थन',
+                // Countries and languages
+                'India': 'भारत', 'Japan': 'जापान', 'Brazil': 'ब्राज़ील',
+                'English': 'अंग्रेजी', 'Chinese': 'चीनी', 'Portuguese': 'पुर्तगाली', 'Japanese': 'जापानी', 'Hindi': 'हिंदी',
+                // Quick start section
+                'get_started': 'जल्दी शुरू करें',
+                'sign_up': 'Google से साइन अप करें',
+                'one_click': 'एक क्लिक से खाता बनाएं और शुरू करें।',
+                'purchase_credits': 'क्रेडिट खरीदें',
+                'use_credits': 'किसी भी मॉडल या प्रदाता पर क्रेडिट का लचीला उपयोग करें।',
+                'purchase': 'खरीदें',
+                'get_api_key': 'अपनी API कुंजी प्राप्त करें',
+                'generate_key': 'API कुंजी जनरेट करें और तुरंत अनुरोध भेजना शुरू करें।',
+                // Features section
+                'powerful_features': 'शक्तिशाली सुविधाएँ',
+                'one_api': 'किसी भी मॉडल के लिए एक API',
+                'one_api_desc': 'एक एकीकृत इंटरफ़ेस के माध्यम से सभी प्रमुख मॉडलों तक पहुंचें। पूरी तरह से OpenAI के साथ संगत।',
+                'browse_models': 'मॉडल ब्राउज़ करें',
+                'high_availability': 'उच्च उपलब्धता',
+                'high_availability_desc': 'वितरित इन्फ्रास्ट्रक्चर के साथ विश्वसनीय पहुंच सुनिश्चित करें। प्रदाता आउटेज को स्वचालित रूप से बायपास करें।',
+                'learn_more': 'अधिक जानें',
+                'optimized_performance': 'अनुकूलित प्रदर्शन',
+                'optimized_performance_desc': 'गति से समझौता किए बिना लागत कम रखें। एज राउटिंग न्यूनतम विलंबता (~30ms) जोड़ती है।',
+                'view_pricing': 'मूल्य निर्धारण देखें',
+                'data_policies': 'डेटा नीतियां',
+                'data_policies_desc': 'विस्तृत नियंत्रण के साथ अपने संगठन की रक्षा करें। सुनिश्चित करें कि प्रॉम्प्ट केवल विश्वसनीय मॉडलों तक पहुंचें।',
+                'view_docs': 'दस्तावेज़ देखें'
+            },
+            'pt_BR': { // Portuguese (Brazil)
+                // Hero section
+                'title': 'A <span class="text-gradient-accent">Interface Unificada</span> para LLMs',
+                'subtitle': 'Melhor preço, sem assinatura. Acesse os principais modelos sem complicações.',
+                'localization': 'Suporta serviço de localização em vários países',
+                // Countries and languages
+                'India': 'Índia', 'Japan': 'Japão', 'Brazil': 'Brasil',
+                'English': 'Inglês', 'Chinese': 'Chinês', 'Portuguese': 'Português', 'Japanese': 'Japonês', 'Hindi': 'Hindi',
+                // Quick start section
+                'get_started': 'Comece rapidamente',
+                'sign_up': 'Inscreva-se com Google',
+                'one_click': 'Um clique para criar uma conta e começar.',
+                'purchase_credits': 'Comprar Créditos',
+                'use_credits': 'Use créditos flexivelmente em qualquer modelo ou provedor.',
+                'purchase': 'Comprar',
+                'get_api_key': 'Obtenha sua Chave API',
+                'generate_key': 'Gere uma chave API e comece a fazer requisições instantaneamente.',
+                // Features section
+                'powerful_features': 'Recursos Poderosos',
+                'one_api': 'Uma API para Qualquer Modelo',
+                'one_api_desc': 'Acesse todos os principais modelos através de uma interface unificada. Totalmente compatível com OpenAI.',
+                'browse_models': 'Explorar Modelos',
+                'high_availability': 'Alta Disponibilidade',
+                'high_availability_desc': 'Garanta acesso confiável com nossa infraestrutura distribuída. Rotas automáticas em caso de falhas.',
+                'learn_more': 'Saiba Mais',
+                'optimized_performance': 'Desempenho Otimizado',
+                'optimized_performance_desc': 'Mantenha custos baixos sem sacrificar velocidade. Roteamento de borda adiciona latência mínima (~30ms).',
+                'view_pricing': 'Ver Preços',
+                'data_policies': 'Políticas de Dados',
+                'data_policies_desc': 'Proteja sua organização com controles detalhados. Garanta que prompts cheguem apenas a modelos confiáveis.',
+                'view_docs': 'Ver Documentação'
+            }
+        };
+
+        // Default language
+        let currentLanguage = 'en';
+
+        // Function to translate the page content
+        function translatePage(lang) {
+            // If language not supported, fall back to English
+            if (!translations[lang]) {
+                console.warn(`Language ${lang} not supported, falling back to English`);
+                lang = 'en';
+            }
+
+            currentLanguage = lang;
+            const t = translations[lang];
+
+            // Translate HTML elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.innerHTML = t[key]; // Use innerHTML to allow HTML tags in translations
+                }
+            });
+
+            // Update country and language names in the map
+            updateMapLanguages(lang);
+        }
+
+        // Function to update map languages based on selected language
+        function updateMapLanguages(lang) {
+            // Check if the global languageMap exists (used by ECharts)
+            if (window.languageMap) {
+                const t = translations[lang]; // Get translations for the current language
+                // Update the global languageMap with translated language names
+                // Use the English keys from translations object for consistency
+                window.languageMap = {
+                    'Chinese': [t['Chinese'] || 'Chinese'],
+                    'English': [t['English'] || 'English'],
+                    'Portuguese': [t['Portuguese'] || 'Portuguese'],
+                    'Japanese': [t['Japanese'] || 'Japanese'],
+                    'Hindi': [t['Hindi'] || 'Hindi']
+                };
+
+                // Reinitialize the map if it exists to reflect language changes
+                if (window.mapChart && typeof window.initializeMap === 'function') {
+                    window.initializeMap();
+                }
+            }
+        }
+
+        // Listen for messages from parent window (e.g., a React app embedding this page)
+        window.addEventListener('message', (event) => {
+            // Handle language change message
+            if (event.data && event.data.lang) {
+                console.log('Language message received:', event.data.lang);
+                translatePage(event.data.lang); // Translate page to the received language
+            }
+
+            // Handle theme change message (e.g., light/dark mode)
+            if (event.data && event.data.themeMode) {
+                document.documentElement.setAttribute('data-theme', event.data.themeMode);
+            }
+        });
+
+        // Initialize with default language when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            translatePage(currentLanguage); // Translate to the default language ('en')
+        });
+    </script>
+
+    <style>
+        /* Custom Styles */
+        body {
+            font-family: 'Inter', sans-serif; /* Use Inter font */
+            background-color: #ffffff; /* White background */
+            color: #1f2937; /* Slightly lighter dark text (gray-800) */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* Styling for API Key placeholder */
+        .api-key-box {
+            background-color: #f9fafb; /* Lighter gray (gray-50) */
+            border: 1px solid #f3f4f6; /* Even lighter gray border (gray-100) */
+            font-family: monospace; /* Monospace font for API key */
+            letter-spacing: 0.2em; /* Wider letter spacing */
+            border-radius: 0.5rem; /* rounded-lg */
+            color: #6b7280; /* gray-500 */
+        }
+
+        /* Feature card style */
+        .feature-card {
+            background-color: #f9fafb; /* gray-50 */
+            border-radius: 1rem; /* rounded-2xl */
+            padding: 2rem; /* p-8 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Push link to bottom */
+            transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transitions */
+            height: 100%; /* Ensure cards have equal height */
+        }
+        .feature-card:hover {
+            transform: translateY(-4px); /* Slight lift on hover */
+            background-color: #f3f4f6; /* Slightly darker gray on hover */
+        }
+        /* Icon styling within feature card */
+        .feature-card .icon-wrapper {
+            display: inline-flex; /* Align icon properly */
+            padding: 0.75rem; /* p-3 */
+            border-radius: 0.75rem; /* rounded-xl */
+            margin-bottom: 1rem; /* mb-4 */
+            /* Subtle gradient background for icon */
+            background-image: linear-gradient(to right, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
+        }
+        .feature-card .icon-wrapper i {
+            color: #4f46e5; /* text-indigo-600 */
+        }
+
+        /* Bento item style for the "Quick Start" section */
+        .bento-item {
+            background-color: #f9fafb; /* gray-50 */
+            border-radius: 1rem; /* rounded-2xl */
+            padding: 1.5rem; /* p-6 */
+            overflow: hidden; /* Hide overflowing elements */
+            position: relative; /* Needed for absolute positioning of step number */
+            transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transitions */
+        }
+        .bento-item:hover {
+            transform: translateY(-4px); /* Slight lift on hover */
+            background-color: #f3f4f6; /* Slightly darker gray on hover */
+        }
+
+        /* Link styling (used in feature cards) */
+        .feature-link {
+            color: #4f46e5; /* text-indigo-600 */
+            font-weight: 600; /* font-semibold */
+            font-size: 1rem; /* text-base */
+            display: inline-flex; /* Use flex for icon alignment */
+            align-items: center; /* Align icon vertically */
+            transition: color 0.2s ease; /* Smooth color transition */
+        }
+        .feature-link:hover {
+            color: #3730a3; /* hover:text-indigo-800 */
+        }
+        .feature-link .fas { /* Arrow icon */
+            margin-left: 0.375rem; /* ml-1.5 */
+            transition: transform 0.2s ease; /* Smooth transform transition */
+            font-size: 0.8em; /* Make arrow slightly smaller */
+        }
+        .feature-link:hover .fas {
+            transform: translateX(3px); /* Move arrow slightly right on hover */
+        }
+
+        /* Large Text Styles */
+        .text-display-huge { /* Main title */
+            font-size: clamp(2.8rem, 9vw, 5.5rem); /* Responsive font size */
+            line-height: 1.1;
+            font-weight: 800; /* font-extrabold */
+            color: #111827; /* Darker text (gray-900) */
+        }
+        .text-display-large { /* Section titles */
+            font-size: clamp(2rem, 7vw, 3.5rem); /* Responsive font size */
+            line-height: 1.1;
+            font-weight: 700; /* font-bold */
+            color: #111827; /* Darker text (gray-900) */
+        }
+        .text-step-number { /* Large step numbers in Quick Start */
+            font-size: clamp(3.5rem, 13vw, 7rem); /* Responsive font size */
+            font-weight: 900; /* font-black */
+            color: #e5e7eb; /* Light gray (gray-200) */
+            line-height: 1;
+            z-index: 0; /* Ensure it's behind content */
+            position: absolute; /* Position behind content */
+            -webkit-user-select: none; /* Disable text selection */
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Simple dashed line for graph visualization */
+        .line-graph-path {
+            stroke-dasharray: 3, 3; /* Smaller dashes */
+            animation: dash 1.5s linear infinite; /* Slower animation */
+            stroke: #6366f1; /* Indigo color */
+            stroke-width: 1.5; /* Thinner line */
+        }
+        .line-graph-base {
+            stroke: #a5b4fc; /* Lighter indigo */
+            stroke-width: 1.5; /* Thinner line */
+        }
+        @keyframes dash { /* Animation for dashed line */
+            to {
+                stroke-dashoffset: -6; /* Adjust based on new dasharray */
+            }
+        }
+
+        /* Style for the map container */
+        #world-map-container {
+            width: 100%;
+            max-width: 800px; /* Slightly smaller max width */
+            height: 400px; /* Reduced height */
+            margin: 1.5rem auto 0 auto; /* Reduced top margin, center horizontally */
+            position: relative; /* Needed for ECharts */
+        }
+
+        /* Base style for language list items (padding, alignment, etc.) */
+        .language-list .lang-item {
+            display: inline-flex; /* Align icon and text */
+            align-items: center;
+            margin: 0.25rem 0.4rem; /* Spacing around items */
+            padding: 0.3rem 0.8rem; /* Padding inside items */
+            border-radius: 9999px; /* rounded-full */
+            font-size: 0.875rem; /* text-sm */
+            white-space: nowrap; /* Prevent wrapping */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add transitions */
+            border: 1px solid transparent; /* Add transparent border for hover effect */
+        }
+        .language-list .lang-item:hover {
+             transform: translateY(-2px); /* Slight lift on hover */
+             box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow on hover */
+        }
+        .language-list .lang-item .fa-globe { /* Globe icon */
+            margin-right: 0.4rem; /* Space between icon and text (mr-1.5) */
+            font-size: 0.9em; /* Slightly smaller icon */
+            /* Icon color will inherit from parent text color */
+        }
+        .language-list .lang-code { /* Language code (e.g., IN, JP) */
+            font-weight: 600; /* font-semibold */
+            margin-right: 0.375rem; /* Adjusted margin-right (mr-1.5) */
+            padding-right: 0.375rem; /* Added padding-right (pr-1.5) */
+            /* Text color inherits, border color set per language */
+            border-right-width: 1px;
+            border-right-style: solid;
+        }
+
+        /* Accent Gradient Text */
+        .text-gradient-accent {
+            background-image: linear-gradient(to right, #4f46e5, #a855f7); /* Indigo to Purple gradient */
+            -webkit-background-clip: text; /* Clip background to text */
+            background-clip: text;
+            color: transparent; /* Make text transparent to show gradient */
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto px-4 py-16 sm:py-24 lg:py-32">
+
+        <section id="hero" class="text-center mb-20 md:mb-28">
+            <div data-motion-element> <h1 class="text-display-huge mb-4" data-i18n="title">
+                    The <span class="text-gradient-accent">Unified Interface</span> for LLMs
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-500 max-w-2xl mx-auto mb-10 md:mb-12" data-i18n="subtitle">
+                    Better price, no subscription. Access leading models seamlessly.
+                </p>
+
+                <h2 class="text-lg md:text-xl font-semibold text-gray-700 mt-12 mb-3" data-i18n="localization">
+                    Supports localization service in multiple countries
+                </h2>
+
+                <div data-motion-element class="language-list mb-6">
+                    <div class="flex flex-wrap justify-center gap-x-2 gap-y-2">
+                        <span class="lang-item bg-orange-100 text-orange-800 border-orange-300">
+                            <i class="fas fa-globe"></i>
+                            <span class="lang-code border-orange-400" data-i18n="India">IN</span>
+                        </span>
+                        <span class="lang-item bg-red-100 text-red-800 border-red-300">
+                            <i class="fas fa-globe"></i>
+                            <span class="lang-code border-red-400" data-i18n="Japan">JP</span>
+                        </span>
+                        <span class="lang-item bg-green-100 text-green-800 border-green-300">
+                            <i class="fas fa-globe"></i>
+                            <span class="lang-code border-green-400" data-i18n="Brazil">BR</span>
+                        </span>
+                         <span class="lang-item bg-blue-100 text-blue-800 border-blue-300">
+                            <i class="fas fa-globe"></i>
+                            <span class="lang-code border-blue-400" data-i18n="English">US</span>
+                        </span>
+                         <span class="lang-item bg-purple-100 text-purple-800 border-purple-300">
+                            <span class="lang-code border-purple-400" data-i18n="Chinese">CN</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div id="world-map-container" data-motion-element></div>
+            </div>
+        </section>
+
+        <section id="quick-start" class="mb-20 md:mb-28">
+            <h2 class="text-display-large text-center mb-12 md:mb-16" data-i18n="get_started">Get started quickly</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div data-motion-element class="bento-item flex flex-col items-center text-center relative">
+                    <span class="text-step-number absolute -top-4 left-0 opacity-75">1</span>
+                    <div class="relative z-10 w-full pt-12"> <i class="fab fa-google fa-3x mb-4 text-blue-500"></i> <h3 class="text-xl font-semibold mb-2 text-gray-800" data-i18n="sign_up">Sign up with Google</h3>
+                        <p class="text-gray-500 text-sm" data-i18n="one_click">One click to create an account and get started.</p>
+                    </div>
+                </div>
+                <div data-motion-element class="bento-item flex flex-col items-center text-center relative">
+                    <span class="text-step-number absolute -top-4 left-0 opacity-75">2</span>
+                    <div class="relative z-10 w-full pt-12">
+                        <i class="fas fa-credit-card fa-3x mb-4 text-green-500"></i> <h3 class="text-xl font-semibold mb-2 text-gray-800" data-i18n="purchase_credits">Purchase Credits</h3>
+                        <p class="text-gray-500 text-sm mb-4" data-i18n="use_credits">Use credits flexibly across any model or provider.</p>
+                        <div class="flex justify-center space-x-3 text-xs">
+                            <div class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full" data-i18n="purchase">Purchase: $10</div>
+                            <div class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full" data-i18n="purchase">Purchase: $99</div>
+                        </div>
+                    </div>
+                </div>
+                <div data-motion-element class="bento-item flex flex-col items-center text-center relative">
+                    <span class="text-step-number absolute -top-4 left-0 opacity-75">3</span>
+                    <div class="relative z-10 w-full pt-12">
+                        <i class="fas fa-key fa-3x mb-4 text-purple-500"></i> <h3 class="text-xl font-semibold mb-2 text-gray-800" data-i18n="get_api_key">Get Your API Key</h3>
+                        <p class="text-gray-500 text-sm mb-4" data-i18n="generate_key">Generate an API key and start making requests instantly.</p>
+                        <div class="api-key-box p-2 text-center text-xs">
+                            sk-or-•••••••••••••••••••••••••••
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features">
+            <h2 class="text-display-large text-center mb-12 md:mb-16" data-i18n="powerful_features">Powerful Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <article data-motion-element class="feature-card">
+                    <div> <div class="icon-wrapper"><i class="fas fa-network-wired text-2xl"></i></div>
+                        <h3 class="text-xl md:text-2xl font-semibold mb-3 text-gray-800" data-i18n="one_api">One API for Any Model</h3>
+                        <p class="text-base text-gray-500 mb-6" data-i18n="one_api_desc">Access all major models through a single, unified interface. Fully OpenAI compatible.</p>
+                    </div>
+                    <a href="#" class="feature-link group mt-auto" data-i18n="browse_models"> Browse Models <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
+                <article data-motion-element class="feature-card">
+                    <div>
+                        <div class="icon-wrapper"><i class="fas fa-server text-2xl"></i></div>
+                        <h3 class="text-xl md:text-2xl font-semibold mb-3 text-gray-800" data-i18n="high_availability">High Availability</h3>
+                        <p class="text-base text-gray-500 mb-6" data-i18n="high_availability_desc">Ensure reliable access with our distributed infrastructure. Auto-routes around provider outages.</p>
+                    </div>
+                    <a href="#" class="feature-link group mt-auto" data-i18n="learn_more">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
+                <article data-motion-element class="feature-card">
+                    <div>
+                        <div class="icon-wrapper"><i class="fas fa-chart-line text-2xl"></i></div>
+                        <h3 class="text-xl md:text-2xl font-semibold mb-3 text-gray-800" data-i18n="optimized_performance">Optimized Performance</h3>
+                        <p class="text-base text-gray-500 mb-6" data-i18n="optimized_performance_desc">Keep costs low without sacrificing speed. Edge routing adds minimal latency (~30ms).</p>
+                        <div class="w-full h-16 my-4">
+                            <svg viewBox="0 0 100 30" preserveAspectRatio="none" class="w-full h-full">
+                                <path d="M 0 25 Q 15 3, 30 20 T 60 15 T 90 28 L 100 25" fill="none" class="line-graph-base"/>
+                                <path d="M 0 25 Q 15 3, 30 20 T 60 15 T 90 28 L 100 25" fill="none" class="line-graph-path"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <a href="#" class="feature-link group mt-auto" data-i18n="view_pricing">
+                        View Pricing <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
+                <article data-motion-element class="feature-card">
+                    <div>
+                        <div class="icon-wrapper"><i class="fas fa-shield-alt text-2xl"></i></div>
+                        <h3 class="text-xl md:text-2xl font-semibold mb-3 text-gray-800" data-i18n="data_policies">Data Policies</h3>
+                        <p class="text-base text-gray-500 mb-6" data-i18n="data_policies_desc">Protect your organization with fine-grained controls. Ensure prompts only reach trusted models.</p>
+                    </div>
+                    <a href="#" class="feature-link group mt-auto" data-i18n="view_docs">
+                        View Docs <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Framer Motion setup for scroll animations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if Motion library is loaded correctly
+            if (typeof window.Motion !== 'object' || typeof window.Motion.motion !== 'function' || typeof window.Motion.inView !== 'function') {
+                console.error('Framer Motion (motion.dom.js) not loaded correctly.');
+            } else {
+                const { motion, inView, stagger } = window.Motion; // Destructure necessary functions
+                const elementsToAnimate = document.querySelectorAll('[data-motion-element]'); // Select all elements marked for animation
+
+                // Animate elements into view as they scroll
+                elementsToAnimate.forEach(element => {
+                    inView(element, () => { // Trigger animation when element enters viewport
+                        const isHeroElement = element.closest('#hero'); // Check if element is in hero section
+                        motion(element, { // Define animation properties
+                            opacity: [0, 1], // Fade in
+                            y: [isHeroElement ? 20 : 15, 0] // Slide up (less movement for non-hero)
+                        }, { // Define animation options
+                            duration: 0.7, // Animation duration
+                            delay: isHeroElement ? 0 : 0.1, // No delay for hero, slight delay for others
+                            ease: [0.25, 0.1, 0.25, 1] // Custom cubic bezier easing
+                        });
+                    }, { once: true }); // Animate only once when it enters view
+                });
+
+                // Stagger animation for feature cards
+                const featureCards = document.querySelectorAll('#features .feature-card');
+                if (featureCards.length > 0 && featureCards[0].parentElement) {
+                    // Animate when the grid container comes into view
+                    inView(featureCards[0].parentElement, () => {
+                        motion(featureCards, { // Animate all feature cards
+                            opacity: [0, 1],
+                            y: [15, 0]
+                        }, {
+                            delay: stagger(0.07), // Apply staggered delay to each card
+                            duration: 0.6,
+                            ease: [0.25, 0.1, 0.25, 1]
+                        });
+                    }, { once: true });
+                }
+
+                // Stagger animation for quick start items
+                const quickStartItems = document.querySelectorAll('#quick-start .bento-item');
+                 if (quickStartItems.length > 0 && quickStartItems[0].parentElement) {
+                    inView(quickStartItems[0].parentElement, () => {
+                        motion(quickStartItems, {
+                            opacity: [0, 1],
+                            y: [15, 0]
+                        }, {
+                            delay: stagger(0.1), // Slightly longer stagger for steps
+                            duration: 0.6,
+                            ease: [0.25, 0.1, 0.25, 1]
+                        });
+                    }, { once: true });
+                }
+            }
+
+            // --- ECharts Map Initialization ---
+            var mapContainer = document.getElementById('world-map-container');
+            if (mapContainer) {
+                var mapChart = echarts.init(mapContainer); // Initialize ECharts instance
+                window.mapChart = mapChart; // Store chart instance globally if needed for updates
+
+                // Define colors for each language (use English keys for mapping)
+                const languageColors = {
+                    'Hindi':      { main: '#f97316', light: 'rgba(253, 186, 116, 0.8)', dark: '#c2410c'}, // Orange
+                    'Japanese':   { main: '#ef4444', light: 'rgba(252, 165, 165, 0.8)', dark: '#b91c1c'}, // Red
+                    'Portuguese': { main: '#22c55e', light: 'rgba(134, 239, 172, 0.8)', dark: '#15803d'}, // Green
+                    'English':    { main: '#3b82f6', light: 'rgba(147, 197, 253, 0.8)', dark: '#1d4ed8'}, // Blue
+                    'Chinese':    { main: '#a855f7', light: 'rgba(216, 180, 254, 0.8)', dark: '#7e22ce'}  // Purple
+                };
+
+                // Map language to countries (English names used as keys internally)
+                const baseLanguageMap = {
+                    'Chinese': ['China'],
+                    'English': ['United States', 'United Kingdom', 'Canada', 'Australia', 'Ireland', 'New Zealand'],
+                    'Portuguese': ['Brazil', 'Portugal'],
+                    'Japanese': ['Japan'],
+                    'Hindi': ['India'] // Key matches languageColors
+                };
+                // Store the base map for translation updates
+                window.baseLanguageMap = baseLanguageMap;
+                // Initialize the translated map (will be updated by i18n)
+                window.languageMap = {};
+
+                // Predefined centers for labels to reduce overlap (Longitude, Latitude)
+                const countryCenters = {
+                   'China': [104.1954, 35.8617], 'United States': [-95.7129, 37.0902], 'United Kingdom': [-3.4360, 55.3781],
+                   'Canada': [-106.3468, 56.1304], 'Australia': [133.7751, -25.2744], 'Ireland': [-8.2439, 53.4129],
+                   'New Zealand': [174.8860, -40.9006], 'Brazil': [-51.9253, -14.2350], 'Portugal': [-8.2245, 39.3999],
+                   'Japan': [138.2529, 36.2048], 'India': [78.9629, 20.5937]
+                };
+
+                // Function to initialize or update the map data and options
+                window.initializeMap = function() {
+                    const highlightedCountriesData = [];
+                    const markPointData = [];
+
+                    // Prepare data for map series and mark points using current languageMap and colors
+                    for (const languageKey in window.baseLanguageMap) { // Iterate using base English keys
+                        const translatedLanguageName = (window.languageMap[languageKey] && window.languageMap[languageKey][0]) || languageKey; // Get translated name or fallback
+                        const colors = languageColors[languageKey] || { main: '#6b7280', light: 'rgba(209, 213, 219, 0.8)', dark: '#4b5563' }; // Fallback to gray if color not defined
+
+                        window.baseLanguageMap[languageKey].forEach(countryName => {
+                            // Data for highlighting country area with specific color
+                            highlightedCountriesData.push({
+                                name: countryName,
+                                itemStyle: { areaColor: colors.main, opacity: 0.8 } // Use main color for area
+                            });
+                            // Data for placing language label mark point
+                            if(countryCenters[countryName]) {
+                                markPointData.push({
+                                    name: translatedLanguageName,
+                                    coord: countryCenters[countryName],
+                                    label: { // Define label style per point
+                                        color: colors.dark, // Use dark color for text
+                                        backgroundColor: colors.light // Use light color for background
+                                    }
+                                });
+                            } else {
+                                // Fallback if center is not defined
+                                markPointData.push({
+                                    name: translatedLanguageName,
+                                    coord: [countryName],
+                                     label: { // Define label style per point
+                                        color: colors.dark,
+                                        backgroundColor: colors.light
+                                    }
+                                });
+                                console.warn(`Center not defined for ${countryName}`);
+                            }
+                        });
+                    }
+
+                    // ECharts map options
+                    var option = {
+                        tooltip: { trigger: 'item', formatter: '{b}' }, // Show country name on hover
+                        visualMap: { show: false }, // Hide visual map controller
+                        series: [{
+                            name: 'Supported Regions', type: 'map', map: 'world',
+                            roam: true, // Enable zooming and panning
+                            zoom: 1.1, // Initial zoom level
+                            label: { show: false }, // Hide default country labels
+                            itemStyle: { // Default style for all countries (non-highlighted)
+                                areaColor: '#f3f4f6', // Default background color (gray-100)
+                                borderColor: '#ffffff', // White borders
+                                borderWidth: 0.5 // Thin borders
+                            },
+                            emphasis: { // Style on hover over ANY country
+                                label: { show: false }, // Keep labels off even on hover
+                                itemStyle: { areaColor: '#d1d5db' } // Lighter gray color on hover for non-highlighted countries
+                            },
+                            data: highlightedCountriesData, // Apply highlight style AND color to specific countries
+                            markPoint: { // Add language labels
+                                symbol: 'none', // Hide marker symbol (circle, pin, etc.)
+                                data: markPointData, // Label data with coordinates AND specific label styles
+                                label: { // Default label style (overridden by data array)
+                                    show: true, formatter: '{b}', position: 'inside',
+                                    fontSize: 9,
+                                    padding: [2, 4], borderRadius: 3
+                                }
+                            }
+                        }]
+                    };
+                    // Set options to the map chart
+                    mapChart.setOption(option, true); // Use true to not merge with previous options
+                };
+
+                // Initial map setup
+                updateMapLanguages(currentLanguage); // Ensure languageMap is set before first init
+                initializeMap(); // Initialize the map
+
+                // Add resize listener to make the map responsive
+                window.addEventListener('resize', () => mapChart.resize());
+
+            } else {
+                console.error("Map container 'world-map-container' not found.");
+            }
+            // --- End ECharts Map Initialization ---
+        });
+    </script>
+
+</body>
+</html>
