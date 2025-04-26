@@ -389,12 +389,14 @@
             border-radius: 9999px; /* rounded-full */
             font-size: 0.875rem; /* text-sm */
             white-space: nowrap; /* Prevent wrapping */
-            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add transitions */
-            border: 1px solid transparent; /* Add transparent border for hover effect */
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; /* Add transitions */
+            border-width: 1px; /* Set border width */
+            border-style: solid;
         }
         .language-list .lang-item:hover {
              transform: translateY(-2px); /* Slight lift on hover */
-             box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow on hover */
+             box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Slightly stronger shadow on hover */
+             filter: brightness(1.05); /* Slightly brighten on hover */
         }
         .language-list .lang-item .fa-globe { /* Globe icon */
             margin-right: 0.4rem; /* Space between icon and text (mr-1.5) */
@@ -418,6 +420,21 @@
             color: transparent; /* Make text transparent to show gradient */
         }
 
+        /* Tailwind Color Definitions (ensure these match JS colors) */
+        /* Lighter versions for consistency */
+        /* Orange-500: #f97316 -> Lighter: #fb923c */
+        /* Red-500: #ef4444 -> Lighter: #f87171 */
+        /* Green-500: #22c55e -> Lighter: #4ade80 */
+        /* Blue-500: #3b82f6 -> Lighter: #60a5fa */
+        /* Purple-500: #a855f7 -> Lighter: #c084fc */
+
+        /* Corresponding darker border colors */
+        /* Orange-600: #ea580c */
+        /* Red-600: #dc2626 */
+        /* Green-600: #16a34a */
+        /* Blue-600: #2563eb */
+        /* Purple-600: #9333ea */
+
     </style>
 </head>
 <body class="antialiased">
@@ -438,24 +455,25 @@
 
                 <div data-motion-element class="language-list mb-6">
                     <div class="flex flex-wrap justify-center gap-x-2 gap-y-2">
-                        <span class="lang-item bg-orange-100 text-orange-800 border-orange-300">
+                        <span class="lang-item bg-blue-400 text-blue-900 border-blue-600">
                             <i class="fas fa-globe"></i>
-                            <span class="lang-code border-orange-400" data-i18n="India">IN</span>
+                            <span class="lang-code border-blue-600" data-i18n="English">US</span>
                         </span>
-                        <span class="lang-item bg-red-100 text-red-800 border-red-300">
+                        <span class="lang-item bg-orange-400 text-orange-900 border-orange-600">
                             <i class="fas fa-globe"></i>
-                            <span class="lang-code border-red-400" data-i18n="Japan">JP</span>
+                            <span class="lang-code border-orange-600" data-i18n="India">IN</span>
                         </span>
-                        <span class="lang-item bg-green-100 text-green-800 border-green-300">
+                        <span class="lang-item bg-red-400 text-red-900 border-red-600">
                             <i class="fas fa-globe"></i>
-                            <span class="lang-code border-green-400" data-i18n="Brazil">BR</span>
+                            <span class="lang-code border-red-600" data-i18n="Japan">JP</span>
                         </span>
-                         <span class="lang-item bg-blue-100 text-blue-800 border-blue-300">
+                        <span class="lang-item bg-green-400 text-green-900 border-green-600">
                             <i class="fas fa-globe"></i>
-                            <span class="lang-code border-blue-400" data-i18n="English">US</span>
+                            <span class="lang-code border-green-600" data-i18n="Brazil">BR</span>
                         </span>
-                         <span class="lang-item bg-purple-100 text-purple-800 border-purple-300">
-                            <span class="lang-code border-purple-400" data-i18n="Chinese">CN</span>
+
+                         <span class="lang-item bg-purple-400 text-purple-900 border-purple-600">
+                            <span class="lang-code border-purple-600" data-i18n="Chinese">CN</span>
                         </span>
                     </div>
                 </div>
@@ -612,13 +630,14 @@
                 var mapChart = echarts.init(mapContainer); // Initialize ECharts instance
                 window.mapChart = mapChart; // Store chart instance globally if needed for updates
 
-                // Define colors for each language (use English keys for mapping)
+                // Define LIGHTER colors for each language (use English keys for mapping)
+                // These should match the Tailwind bg-* classes used in the HTML list items
                 const languageColors = {
-                    'Hindi':      { main: '#f97316', light: 'rgba(253, 186, 116, 0.8)', dark: '#c2410c'}, // Orange
-                    'Japanese':   { main: '#ef4444', light: 'rgba(252, 165, 165, 0.8)', dark: '#b91c1c'}, // Red
-                    'Portuguese': { main: '#22c55e', light: 'rgba(134, 239, 172, 0.8)', dark: '#15803d'}, // Green
-                    'English':    { main: '#3b82f6', light: 'rgba(147, 197, 253, 0.8)', dark: '#1d4ed8'}, // Blue
-                    'Chinese':    { main: '#a855f7', light: 'rgba(216, 180, 254, 0.8)', dark: '#7e22ce'}  // Purple
+                    'Hindi':      { main: '#fb923c', light: 'rgba(253, 230, 138, 0.8)', dark: '#b45309'}, // Orange-400 base
+                    'Japanese':   { main: '#f87171', light: 'rgba(254, 205, 211, 0.8)', dark: '#9f1239'}, // Red-400 base
+                    'Portuguese': { main: '#4ade80', light: 'rgba(187, 247, 208, 0.8)', dark: '#14532d'}, // Green-400 base
+                    'English':    { main: '#60a5fa', light: 'rgba(191, 219, 254, 0.8)', dark: '#1e40af'}, // Blue-400 base
+                    'Chinese':    { main: '#c084fc', light: 'rgba(233, 213, 255, 0.8)', dark: '#6b21a8'}  // Purple-400 base
                 };
 
                 // Map language to countries (English names used as keys internally)
@@ -650,13 +669,13 @@
                     // Prepare data for map series and mark points using current languageMap and colors
                     for (const languageKey in window.baseLanguageMap) { // Iterate using base English keys
                         const translatedLanguageName = (window.languageMap[languageKey] && window.languageMap[languageKey][0]) || languageKey; // Get translated name or fallback
-                        const colors = languageColors[languageKey] || { main: '#6b7280', light: 'rgba(209, 213, 219, 0.8)', dark: '#4b5563' }; // Fallback to gray if color not defined
+                        const colors = languageColors[languageKey] || { main: '#d1d5db', light: 'rgba(243, 244, 246, 0.8)', dark: '#4b5563' }; // Fallback to light gray if color not defined
 
                         window.baseLanguageMap[languageKey].forEach(countryName => {
-                            // Data for highlighting country area with specific color
+                            // Data for highlighting country area with specific LIGHTER color
                             highlightedCountriesData.push({
                                 name: countryName,
-                                itemStyle: { areaColor: colors.main, opacity: 0.8 } // Use main color for area
+                                itemStyle: { areaColor: colors.main, opacity: 0.85 } // Use main (now lighter) color for area, slightly more opaque
                             });
                             // Data for placing language label mark point
                             if(countryCenters[countryName]) {
@@ -664,8 +683,8 @@
                                     name: translatedLanguageName,
                                     coord: countryCenters[countryName],
                                     label: { // Define label style per point
-                                        color: colors.dark, // Use dark color for text
-                                        backgroundColor: colors.light // Use light color for background
+                                        color: colors.dark, // Use dark color for text for contrast
+                                        backgroundColor: colors.light // Use very light color for background
                                     }
                                 });
                             } else {
@@ -699,7 +718,7 @@
                             },
                             emphasis: { // Style on hover over ANY country
                                 label: { show: false }, // Keep labels off even on hover
-                                itemStyle: { areaColor: '#d1d5db' } // Lighter gray color on hover for non-highlighted countries
+                                itemStyle: { areaColor: '#e5e7eb' } // Slightly darker gray on hover for non-highlighted countries
                             },
                             data: highlightedCountriesData, // Apply highlight style AND color to specific countries
                             markPoint: { // Add language labels
