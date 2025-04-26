@@ -196,8 +196,13 @@
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) {
+                    // Only translate if the key exists for the current language
                     el.innerHTML = t[key]; // Use innerHTML to allow HTML tags in translations
+                } else if (translations['en'][key]) {
+                     // Fallback to English if key is missing in current language but exists in English
+                     el.innerHTML = translations['en'][key];
                 }
+                // Otherwise, leave the original HTML content
             });
 
             // Update country and language names in the map
@@ -207,17 +212,23 @@
         // Function to update map languages based on selected language
         function updateMapLanguages(lang) {
             // Check if the global languageMap exists (used by ECharts)
-            if (window.languageMap) {
-                const t = translations[lang]; // Get translations for the current language
+            if (window.baseLanguageMap) { // Check base map existence
+                const t = translations[lang] || translations['en']; // Get translations, fallback to English
                 // Update the global languageMap with translated language names
                 // Use the English keys from translations object for consistency
-                window.languageMap = {
-                    'Chinese': [t['Chinese'] || 'Chinese'],
-                    'English': [t['English'] || 'English'],
-                    'Portuguese': [t['Portuguese'] || 'Portuguese'],
-                    'Japanese': [t['Japanese'] || 'Japanese'],
-                    'Hindi': [t['Hindi'] || 'Hindi']
-                };
+                window.languageMap = {}; // Reset the map for the new language
+                for (const langKey in window.baseLanguageMap) {
+                     // Ensure the key exists in the target language or fallback to English
+                     const translatedName = t[langKey] || translations['en'][langKey];
+                     if (translatedName) {
+                        window.languageMap[langKey] = [translatedName];
+                     } else {
+                         // If even English fallback is missing, use the key itself (should not happen with current setup)
+                         window.languageMap[langKey] = [langKey];
+                         console.warn(`Translation missing for map language key: ${langKey}`);
+                     }
+                }
+
 
                 // Reinitialize the map if it exists to reflect language changes
                 if (window.mapChart && typeof window.initializeMap === 'function') {
@@ -420,6 +431,84 @@
             color: transparent; /* Make text transparent to show gradient */
         }
 
+        /* Model Card Styles */
+        .model-card {
+            background-color: #ffffff; /* White background */
+            border-radius: 1rem; /* rounded-2xl */
+            padding: 1rem; /* p-4 */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            border: 1px solid #f3f4f6; /* border-gray-100 */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Align items to the start */
+            position: relative; /* For gradient positioning */
+            overflow: hidden; /* Hide overflowing gradient */
+            transition: box-shadow 0.3s ease; /* Smooth transition */
+            height: 100%; /* Ensure cards have equal height in grid */
+        }
+        .model-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+        }
+        .model-card-gradient {
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 6rem; /* h-24 */
+            width: 6rem; /* w-24 */
+            background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+            opacity: 0.3; /* Reduced opacity */
+            z-index: 0; /* Behind content */
+            border-radius: 0 1rem 0 0; /* Match top-right corner */
+            pointer-events: none; /* Prevent interaction */
+        }
+        .model-card-content {
+            position: relative; /* Ensure content is above gradient */
+            z-index: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Allow content to grow and push footer down */
+        }
+        .model-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Center items vertically */
+            width: 100%;
+            margin-bottom: 0.5rem; /* mb-2 */
+            height: 2rem; /* Added fixed height for alignment */
+        }
+        .model-card-header img { /* Style for the new img icons */
+            height: 1.5rem; /* h-6 */
+            width: auto; /* Adjust width automatically based on height */
+            max-width: 1.5rem; /* Ensure icon doesn't get too wide */
+            object-fit: contain; /* Ensure SVG scales properly */
+        }
+        .model-card-tag {
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 500; /* font-medium */
+            padding: 0.125rem 0.5rem; /* px-2 py-0.5 */
+            border-radius: 9999px; /* rounded-full */
+        }
+        .model-card-title {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: #1f2937; /* text-gray-800 */
+            margin-top: 0.5rem; /* pt-2 */
+        }
+        .model-card-provider {
+            font-size: 0.875rem; /* text-sm */
+            color: #6b7280; /* text-gray-500 */
+            margin-top: 0.25rem; /* mt-1 */
+            margin-bottom: 0.75rem; /* mb-3 */
+        }
+        .model-card-footer {
+            width: 100%;
+            height: 1px;
+            background-color: #e5e7eb; /* bg-gray-200 */
+            margin-top: auto; /* Push footer to bottom */
+        }
+
+
         /* Tailwind Color Definitions (ensure these match JS colors) */
         /* Lighter versions for consistency */
         /* Orange-500: #f97316 -> Lighter: #fb923c */
@@ -442,44 +531,87 @@
     <div class="container mx-auto px-4 py-16 sm:py-24 lg:py-32">
 
         <section id="hero" class="text-center mb-20 md:mb-28">
-            <div data-motion-element> <h1 class="text-display-huge mb-4" data-i18n="title">
+            <div data-motion-element>
+                <h1 class="text-display-huge mb-4" data-i18n="title">
                     The <span class="text-gradient-accent">Unified Interface</span> for LLMs
                 </h1>
                 <p class="text-xl md:text-2xl text-gray-500 max-w-2xl mx-auto mb-10 md:mb-12" data-i18n="subtitle">
                     Better price, no subscription. Access leading models seamlessly.
                 </p>
+            </div>
 
-                <h2 class="text-lg md:text-xl font-semibold text-gray-700 mt-12 mb-3" data-i18n="localization">
-                    Supports localization service in multiple countries
-                </h2>
+            <section id="model-cards" class="mt-12 mb-16 max-w-4xl mx-auto" data-motion-element>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="model-card">
+                        <div class="model-card-gradient from-blue-100 via-purple-50 to-transparent"></div>
+                        <div class="model-card-content">
+                            <div class="model-card-header">
 
-                <div data-motion-element class="language-list mb-6">
-                    <div class="flex flex-wrap justify-center gap-x-2 gap-y-2">
-                        <span class="lang-item bg-blue-400 text-blue-900 border-blue-600">
-                            <i class="fas fa-globe"></i>
-                            <span class="lang-code border-blue-600" data-i18n="English">US</span>
-                        </span>
-                        <span class="lang-item bg-orange-400 text-orange-900 border-orange-600">
-                            <i class="fas fa-globe"></i>
-                            <span class="lang-code border-orange-600" data-i18n="India">IN</span>
-                        </span>
-                        <span class="lang-item bg-red-400 text-red-900 border-red-600">
-                            <i class="fas fa-globe"></i>
-                            <span class="lang-code border-red-600" data-i18n="Japan">JP</span>
-                        </span>
-                        <span class="lang-item bg-green-400 text-green-900 border-green-600">
-                            <i class="fas fa-globe"></i>
-                            <span class="lang-code border-green-600" data-i18n="Brazil">BR</span>
-                        </span>
+                                <span class="model-card-tag bg-blue-100 text-blue-700">New</span>
+                            </div>
+                            <h3 class="model-card-title">Gemini 1.5 Pro Preview</h3>
+                            <p class="model-card-provider">by Google</p>
+                        </div>
+                         <div class="model-card-footer"></div>
+                    </div>
 
-                         <span class="lang-item bg-purple-400 text-purple-900 border-purple-600">
-                            <span class="lang-code border-purple-600" data-i18n="Chinese">CN</span>
-                        </span>
+                    <div class="model-card">
+                        <div class="model-card-gradient from-purple-100 via-pink-50 to-transparent"></div>
+                        <div class="model-card-content">
+                            <div class="model-card-header">
+
+                                <span class="model-card-tag bg-blue-100 text-blue-700">New</span>
+                            </div>
+                            <h3 class="model-card-title">GPT-4.1</h3>
+                            <p class="model-card-provider">by OpenAI</p>
+                        </div>
+                         <div class="model-card-footer"></div>
+                    </div>
+
+                    <div class="model-card">
+                        <div class="model-card-gradient from-orange-100 via-yellow-50 to-transparent"></div>
+                        <div class="model-card-content">
+                            <div class="model-card-header">
+
+                                <span class="model-card-tag bg-orange-100 text-orange-700">Popular</span>
+                            </div>
+                            <h3 class="model-card-title">Claude 3.7 Sonnet</h3>
+                            <p class="model-card-provider">by Anthropic</p>
+                        </div>
+                         <div class="model-card-footer"></div>
                     </div>
                 </div>
+            </section>
 
-                <div id="world-map-container" data-motion-element></div>
+            <h2 class="text-lg md:text-xl font-semibold text-gray-700 mt-12 mb-3" data-i18n="localization">
+                Supports localization service in multiple countries
+            </h2>
+
+            <div data-motion-element class="language-list mb-6">
+                <div class="flex flex-wrap justify-center gap-x-2 gap-y-2">
+                    <span class="lang-item bg-blue-400 text-blue-900 border-blue-600">
+                        <i class="fas fa-globe"></i>
+                        <span class="lang-code border-blue-600" data-i18n="English">US</span> </span>
+                    <span class="lang-item bg-orange-400 text-orange-900 border-orange-600">
+                        <i class="fas fa-globe"></i>
+                        <span class="lang-code border-orange-600" data-i18n="India">IN</span>
+                    </span>
+                    <span class="lang-item bg-red-400 text-red-900 border-red-600">
+                        <i class="fas fa-globe"></i>
+                        <span class="lang-code border-red-600" data-i18n="Japan">JP</span>
+                    </span>
+                    <span class="lang-item bg-green-400 text-green-900 border-green-600">
+                        <i class="fas fa-globe"></i>
+                        <span class="lang-code border-green-600" data-i18n="Brazil">BR</span>
+                    </span>
+                     <span class="lang-item bg-purple-400 text-purple-900 border-purple-600">
+                         <i class="fas fa-globe"></i>
+                         <span class="lang-code border-purple-600" data-i18n="Chinese">CN</span>
+                    </span>
+                </div>
             </div>
+
+            <div id="world-map-container" data-motion-element></div>
         </section>
 
         <section id="quick-start" class="mb-20 md:mb-28">
@@ -487,14 +619,15 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div data-motion-element class="bento-item flex flex-col items-center text-center relative">
                     <span class="text-step-number absolute -top-4 left-0 opacity-75">1</span>
-                    <div class="relative z-10 w-full pt-12"> <i class="fab fa-google fa-3x mb-4 text-blue-500"></i> <h3 class="text-xl font-semibold mb-2 text-gray-800" data-i18n="sign_up">Sign up with Google</h3>
+                    <div class="relative z-10 w-full pt-12"> <i class="fab fa-google fa-3x mb-4 text-blue-500"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800" data-i18n="sign_up">Sign up with Google</h3>
                         <p class="text-gray-500 text-sm" data-i18n="one_click">One click to create an account and get started.</p>
                     </div>
                 </div>
                 <div data-motion-element class="bento-item flex flex-col items-center text-center relative">
                     <span class="text-step-number absolute -top-4 left-0 opacity-75">2</span>
-                    <div class="relative z-10 w-full pt-12">
-                        <i class="fas fa-credit-card fa-3x mb-4 text-green-500"></i> <h3 class="text-xl font-semibold mb-2 text-gray-800" data-i18n="purchase_credits">Purchase Credits</h3>
+                    <div class="relative z-10 w-full pt-12"> <i class="fas fa-credit-card fa-3x mb-4 text-green-500"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800" data-i18n="purchase_credits">Purchase Credits</h3>
                         <p class="text-gray-500 text-sm mb-4" data-i18n="use_credits">Use credits flexibly across any model or provider.</p>
                         <div class="flex justify-center space-x-3 text-xs">
                             <div class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full" data-i18n="purchase">Purchase: $10</div>
@@ -504,8 +637,8 @@
                 </div>
                 <div data-motion-element class="bento-item flex flex-col items-center text-center relative">
                     <span class="text-step-number absolute -top-4 left-0 opacity-75">3</span>
-                    <div class="relative z-10 w-full pt-12">
-                        <i class="fas fa-key fa-3x mb-4 text-purple-500"></i> <h3 class="text-xl font-semibold mb-2 text-gray-800" data-i18n="get_api_key">Get Your API Key</h3>
+                    <div class="relative z-10 w-full pt-12"> <i class="fas fa-key fa-3x mb-4 text-purple-500"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800" data-i18n="get_api_key">Get Your API Key</h3>
                         <p class="text-gray-500 text-sm mb-4" data-i18n="generate_key">Generate an API key and start making requests instantly.</p>
                         <div class="api-key-box p-2 text-center text-xs">
                             sk-or-•••••••••••••••••••••••••••
@@ -519,11 +652,13 @@
             <h2 class="text-display-large text-center mb-12 md:mb-16" data-i18n="powerful_features">Powerful Features</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <article data-motion-element class="feature-card">
-                    <div> <div class="icon-wrapper"><i class="fas fa-network-wired text-2xl"></i></div>
+                    <div>
+                        <div class="icon-wrapper"><i class="fas fa-network-wired text-2xl"></i></div>
                         <h3 class="text-xl md:text-2xl font-semibold mb-3 text-gray-800" data-i18n="one_api">One API for Any Model</h3>
                         <p class="text-base text-gray-500 mb-6" data-i18n="one_api_desc">Access all major models through a single, unified interface. Fully OpenAI compatible.</p>
                     </div>
-                    <a href="#" class="feature-link group mt-auto" data-i18n="browse_models"> Browse Models <i class="fas fa-arrow-right"></i>
+                    <a href="#" class="feature-link group mt-auto" data-i18n="browse_models">
+                        Browse Models <i class="fas fa-arrow-right"></i>
                     </a>
                 </article>
                 <article data-motion-element class="feature-card">
@@ -575,53 +710,80 @@
                 console.error('Framer Motion (motion.dom.js) not loaded correctly.');
             } else {
                 const { motion, inView, stagger } = window.Motion; // Destructure necessary functions
-                const elementsToAnimate = document.querySelectorAll('[data-motion-element]'); // Select all elements marked for animation
 
-                // Animate elements into view as they scroll
+                // Animate elements marked with data-motion-element
+                const elementsToAnimate = document.querySelectorAll('[data-motion-element]');
                 elementsToAnimate.forEach(element => {
-                    inView(element, () => { // Trigger animation when element enters viewport
-                        const isHeroElement = element.closest('#hero'); // Check if element is in hero section
-                        motion(element, { // Define animation properties
-                            opacity: [0, 1], // Fade in
-                            y: [isHeroElement ? 20 : 15, 0] // Slide up (less movement for non-hero)
-                        }, { // Define animation options
-                            duration: 0.7, // Animation duration
-                            delay: isHeroElement ? 0 : 0.1, // No delay for hero, slight delay for others
-                            ease: [0.25, 0.1, 0.25, 1] // Custom cubic bezier easing
+                    inView(element, () => {
+                        const isHeroElement = element.closest('#hero');
+                        const isModelCardSection = element.closest('#model-cards'); // Check if it's the model card section
+
+                        motion(element, {
+                            opacity: [0, 1],
+                            y: [isHeroElement || isModelCardSection ? 20 : 15, 0] // Slightly more movement for hero/model cards
+                        }, {
+                            duration: 0.7,
+                            delay: (isHeroElement && !isModelCardSection) ? 0 : 0.1, // Only hero title/subtitle has 0 delay
+                            ease: [0.25, 0.1, 0.25, 1]
                         });
-                    }, { once: true }); // Animate only once when it enters view
+                    }, { once: true });
                 });
 
+                 // Stagger animation specifically for model cards within their container
+                const modelCardsContainer = document.querySelector('#model-cards .grid');
+                if (modelCardsContainer) {
+                     const modelCards = modelCardsContainer.children; // Get direct children (the cards)
+                     if (modelCards.length > 0) {
+                         inView(modelCardsContainer, () => {
+                             motion(modelCards, {
+                                 opacity: [0, 1],
+                                 y: [15, 0]
+                             }, {
+                                 delay: stagger(0.1), // Stagger the animation for each card
+                                 duration: 0.6,
+                                 ease: [0.25, 0.1, 0.25, 1]
+                             });
+                         }, { once: true });
+                     }
+                 }
+
+
                 // Stagger animation for feature cards
-                const featureCards = document.querySelectorAll('#features .feature-card');
-                if (featureCards.length > 0 && featureCards[0].parentElement) {
-                    // Animate when the grid container comes into view
-                    inView(featureCards[0].parentElement, () => {
-                        motion(featureCards, { // Animate all feature cards
-                            opacity: [0, 1],
-                            y: [15, 0]
-                        }, {
-                            delay: stagger(0.07), // Apply staggered delay to each card
-                            duration: 0.6,
-                            ease: [0.25, 0.1, 0.25, 1]
-                        });
-                    }, { once: true });
-                }
+                const featureCardsContainer = document.querySelector('#features .grid');
+                 if (featureCardsContainer) {
+                     const featureCards = featureCardsContainer.children;
+                     if (featureCards.length > 0) {
+                         inView(featureCardsContainer, () => {
+                             motion(featureCards, {
+                                 opacity: [0, 1],
+                                 y: [15, 0]
+                             }, {
+                                 delay: stagger(0.07),
+                                 duration: 0.6,
+                                 ease: [0.25, 0.1, 0.25, 1]
+                             });
+                         }, { once: true });
+                     }
+                 }
+
 
                 // Stagger animation for quick start items
-                const quickStartItems = document.querySelectorAll('#quick-start .bento-item');
-                 if (quickStartItems.length > 0 && quickStartItems[0].parentElement) {
-                    inView(quickStartItems[0].parentElement, () => {
-                        motion(quickStartItems, {
-                            opacity: [0, 1],
-                            y: [15, 0]
-                        }, {
-                            delay: stagger(0.1), // Slightly longer stagger for steps
-                            duration: 0.6,
-                            ease: [0.25, 0.1, 0.25, 1]
-                        });
-                    }, { once: true });
-                }
+                const quickStartItemsContainer = document.querySelector('#quick-start .grid');
+                 if (quickStartItemsContainer) {
+                     const quickStartItems = quickStartItemsContainer.children;
+                     if (quickStartItems.length > 0) {
+                         inView(quickStartItemsContainer, () => {
+                             motion(quickStartItems, {
+                                 opacity: [0, 1],
+                                 y: [15, 0]
+                             }, {
+                                 delay: stagger(0.1),
+                                 duration: 0.6,
+                                 ease: [0.25, 0.1, 0.25, 1]
+                             });
+                         }, { once: true });
+                     }
+                 }
             }
 
             // --- ECharts Map Initialization ---
@@ -631,7 +793,6 @@
                 window.mapChart = mapChart; // Store chart instance globally if needed for updates
 
                 // Define LIGHTER colors for each language (use English keys for mapping)
-                // These should match the Tailwind bg-* classes used in the HTML list items
                 const languageColors = {
                     'Hindi':      { main: '#fb923c', light: 'rgba(253, 230, 138, 0.8)', dark: '#b45309'}, // Orange-400 base
                     'Japanese':   { main: '#f87171', light: 'rgba(254, 205, 211, 0.8)', dark: '#9f1239'}, // Red-400 base
@@ -675,7 +836,10 @@
                             // Data for highlighting country area with specific LIGHTER color
                             highlightedCountriesData.push({
                                 name: countryName,
-                                itemStyle: { areaColor: colors.main, opacity: 0.85 } // Use main (now lighter) color for area, slightly more opaque
+                                itemStyle: { areaColor: colors.main, opacity: 0.85 }, // Use main (now lighter) color for area, slightly more opaque
+                                emphasis: { // Style on hover over highlighted countries
+                                    itemStyle: { areaColor: colors.dark, opacity: 1 } // Darken on hover
+                                }
                             });
                             // Data for placing language label mark point
                             if(countryCenters[countryName]) {
@@ -691,7 +855,7 @@
                                 // Fallback if center is not defined
                                 markPointData.push({
                                     name: translatedLanguageName,
-                                    coord: [countryName],
+                                    coord: [countryName], // ECharts might try to find center by name
                                      label: { // Define label style per point
                                         color: colors.dark,
                                         backgroundColor: colors.light
@@ -716,7 +880,7 @@
                                 borderColor: '#ffffff', // White borders
                                 borderWidth: 0.5 // Thin borders
                             },
-                            emphasis: { // Style on hover over ANY country
+                            emphasis: { // Style on hover over ANY country (non-highlighted)
                                 label: { show: false }, // Keep labels off even on hover
                                 itemStyle: { areaColor: '#e5e7eb' } // Slightly darker gray on hover for non-highlighted countries
                             },
