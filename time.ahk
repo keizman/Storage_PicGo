@@ -84,7 +84,8 @@ RAlt & p::
 ;^!m:: ; 定义快捷键为 Ctrl + Alt + M explain 只用于minimize window, 
 ;不是软件的window 比如 A(主控) B(被连接) 则快捷键用于在两者之间切换
 
-^MButton::
+;^MButton::
+^XButton1:: ; Ctrl + 鼠标后退键 (Back Button)
     ;Sleep, 50
     IfWinActive, ahk_class TscShellContainerClass
         WinMinimize, A
